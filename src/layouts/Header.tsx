@@ -16,8 +16,9 @@ const Container = styled.div`
 `;
 
 const MarkerInfo = styled.ul`
-  margin-top: 20px;
-  padding: 10px;
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 15px 10px 10px;
   background-color: rgba(255, 255, 255, 0.8);
   list-style: none;
   font-size: 13px;
