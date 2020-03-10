@@ -1,13 +1,18 @@
-name: my workflow                     # Workflow 이름
-on: [push]                            # Event 감지
+name: React build
+on:
+  push:                               # master Branch에서 push 이벤트가 일어났을 때만 실행
+    branches:
+      - master
 
-jobs:                                 # Job 설정
-  build:                              # Job ID
-    name: hello github action         # Job 이름
-    runs-on: ubuntu-18.04             # Job 가상환경 인스턴스
-    steps:                            # Steps
-      - name: checkout source code    # Step 이름
-        uses: actions/checkout@master # Uses를 통한 외부 설정 가져오기: 자신의 레포지토리 소스 받아오기
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout source code.   # 레포지토리 체크아웃
+        uses: actions/checkout@master
 
-      - name: echo Hello              # Step 이름
-        run: echo "Hello"
+      - name: Install Dependencies    # 의존 파일 설치
+        run: npm install
+
+      - name: Build                   # React Build
+        run: npm run build
