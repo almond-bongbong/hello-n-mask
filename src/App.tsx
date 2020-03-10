@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import GlobalStyle from 'styles/global-style';
-import styled from 'styled-components';
-import Map from 'components/Map';
-import CurrentLocationIcon from 'icons/CurrentLocationIcon';
+import GlobalStyle from './styles/global-style';
+import styled, { ThemeProvider } from 'styled-components';
+import Map from './components/Map';
+import CurrentLocationIcon from './icons/CurrentLocationIcon';
 import Header from './layouts/Header';
+import { theme } from './styles/theme';
 
 const CurrentLocationButton = styled.button`
   display: block;
@@ -46,22 +47,24 @@ function App() {
   }, [handleGeoSuccess, handleGeoError]);
 
   return (
-    <div className="App">
-      <GlobalStyle />
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        <GlobalStyle />
 
-      <Map
-        latitude={latitude}
-        longitude={longitude}
-        markerLatitude={markerLatitude}
-        markerLongitude={markerLongitude}
-      />
+        <Map
+          latitude={latitude}
+          longitude={longitude}
+          markerLatitude={markerLatitude}
+          markerLongitude={markerLongitude}
+        />
 
-      <Header />
+        <Header />
 
-      <CurrentLocationButton onClick={detectLocation}>
-        <CurrentLocationIcon />
-      </CurrentLocationButton>
-    </div>
+        <CurrentLocationButton onClick={detectLocation}>
+          <CurrentLocationIcon />
+        </CurrentLocationButton>
+      </div>
+    </ThemeProvider>
   );
 }
 

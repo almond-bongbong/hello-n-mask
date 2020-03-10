@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
-import { getStores } from 'api/store';
+import { getStores } from '../api/store';
 import { throttle } from 'lodash';
 import axios from 'axios';
 
