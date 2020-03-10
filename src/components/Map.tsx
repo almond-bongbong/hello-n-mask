@@ -172,7 +172,7 @@ function Map({
           storeType[store.type]
         })</div>
                 <div class="stock_at">입고시간 : ${moment(
-                  store.stock_at,
+                  new Date(store.stock_at),
                 ).format('MM월 DD일 HH:mm')}</div>
                 <div class="remain">재고상태 : ${getRemainText(
                   store.remain_stat,

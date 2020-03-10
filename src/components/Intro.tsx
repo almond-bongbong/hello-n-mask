@@ -2,23 +2,28 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 
-const Container = styled.div``;
+const Container = styled.div`
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10000;
+  background-color: rgba(0, 0, 0, 0.2);
+`;
 
 const Content = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 100%;
-  padding: 0 30px;
-  text-align: center;
+  width: 90%;
+  max-width: 600px;
+  padding: 30px;
+  background-color: #fff;
   transform: translate(-50%, -50%);
 `;
 
 const InfoTable = styled.div`
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto 40px;
-
   table {
     table-layout: fixed;
     width: 100%;
@@ -41,7 +46,7 @@ const InfoTable = styled.div`
   td {
     padding: 10px 20px;
   }
-  
+
   .active th,
   .active td {
     background-color: #f6edff;
@@ -58,32 +63,15 @@ const InfoTable = styled.div`
   }
 `;
 
-const Description = styled.p`
-  margin-bottom: 30px;
-  font-size: 15px;
-`;
-
-const StartButton = styled.button`
-  display: block;
-  width: 140px;
-  margin: 0 auto;
-  padding: 15px 30px;
-  background-color: #481380;
-  border-radius: 5px;
-  color: #fff;
-  font-size: 16px;
-  text-align: center;
-`;
-
 interface IntroProps {
-  onStart: () => void;
+  onClickDim: () => void;
 }
 
-function Intro({ onStart }: IntroProps) {
+function Intro({ onClickDim }: IntroProps) {
   const today = moment().day();
 
   return (
-    <Container>
+    <Container onClick={onClickDim}>
       <Content>
         <InfoTable>
           <table>
@@ -121,14 +109,6 @@ function Intro({ onStart }: IntroProps) {
             </tbody>
           </table>
         </InfoTable>
-        <Description>
-          현재 위치를 기반으로 서비스를 제공하고 있습니다.
-          <br />
-          정보 제공에 동의해 주세요.
-        </Description>
-        <StartButton type="button" onClick={onStart}>
-          시작하기
-        </StartButton>
       </Content>
     </Container>
   );

@@ -5,6 +5,7 @@ import Map from './components/Map';
 import CurrentLocationIcon from './icons/CurrentLocationIcon';
 import Header from './layouts/Header';
 import { theme } from './styles/theme';
+import Intro from './components/Intro';
 
 const CurrentLocationButton = styled.button`
   display: block;
@@ -23,6 +24,7 @@ function App() {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [markerLatitude, setMarkerLatitude] = useState<number | null>(null);
   const [markerLongitude, setMarkerLongitude] = useState<number | null>(null);
+  const [showInfo, setShowInfo] = useState<boolean>(false);
 
   const handleGeoSuccess: PositionCallback = useCallback(
     async (position: Position) => {
@@ -46,6 +48,14 @@ function App() {
     navigator.geolocation.getCurrentPosition(handleGeoSuccess, handleGeoError);
   }, [handleGeoSuccess, handleGeoError]);
 
+  const onClickTitle = useCallback(() => {
+    setShowInfo(true);
+  }, []);
+
+  const closeIntro = useCallback(() => {
+    setShowInfo(false);
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
@@ -58,11 +68,13 @@ function App() {
           markerLongitude={markerLongitude}
         />
 
-        <Header />
+        <Header onClickTitle={onClickTitle} />
 
         <CurrentLocationButton onClick={detectLocation}>
           <CurrentLocationIcon />
         </CurrentLocationButton>
+
+        {showInfo && <Intro onClickDim={closeIntro} />}
       </div>
     </ThemeProvider>
   );
