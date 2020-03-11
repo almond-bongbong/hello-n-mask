@@ -42,5 +42,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id E3IHQOIZD0IQB4 \
+            --distribution-id ${{ secrets.AWS_CLOUDFRONT_ID }} \
             --paths / /index.html /service-worker.js /manifest.json /asset-manifest.json /favicon.jpg

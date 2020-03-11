@@ -47,7 +47,7 @@ const getRemainText = (stat: any) => {
   if (stat === 'plenty') return '100개 이상';
   if (stat === 'some') return '30 ~ 99개';
   if (stat === 'few') return '2 ~ 29개';
-  if (stat === 'empty') return '1개 남음';
+  if (stat === 'empty') return '0 ~ 1개';
   return 1;
 };
 
