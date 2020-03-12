@@ -1,6 +1,6 @@
 {
   "name": "hello-n-mask",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
@@ -14,7 +14,10 @@
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
     "@types/styled-components": "^5.0.1",
+    "@types/ua-parser-js": "^0.7.33",
     "axios": "^0.19.2",
+    "fxjs": "^0.15.0",
+    "fxjs2": "^0.15.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "react": "^16.13.0",
@@ -23,7 +26,8 @@
     "react-spinners": "^0.8.1",
     "styled-components": "^5.0.1",
     "styled-reset": "^4.1.1",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "ua-parser-js": "^0.7.21"
   },
   "scripts": {
     "start": "react-scripts start",

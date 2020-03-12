@@ -6,6 +6,7 @@ import CurrentLocationIcon from './icons/CurrentLocationIcon';
 import Header from './layouts/Header';
 import { theme } from './styles/theme';
 import Intro from './components/Intro';
+import Loader from './components/Loader';
 
 const CurrentLocationButton = styled.button`
   display: block;
@@ -20,6 +21,7 @@ const CurrentLocationButton = styled.button`
 `;
 
 function App() {
+  const [loading, setLoading] = useState<boolean>(false);
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [markerLatitude, setMarkerLatitude] = useState<number | null>(null);
@@ -56,6 +58,10 @@ function App() {
     setShowInfo(false);
   }, []);
 
+  const handleLoading = useCallback(value => {
+    setLoading(value);
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
@@ -66,6 +72,7 @@ function App() {
           longitude={longitude}
           markerLatitude={markerLatitude}
           markerLongitude={markerLongitude}
+          onChangeLoading={handleLoading}
         />
 
         <Header onClickTitle={onClickTitle} />
@@ -75,6 +82,8 @@ function App() {
         </CurrentLocationButton>
 
         {showInfo && <Intro onClickDim={closeIntro} />}
+
+        {loading && <Loader />}
       </div>
     </ThemeProvider>
   );

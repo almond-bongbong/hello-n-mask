@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import storeImages from '../constants/storeImages';
+import remainText from '../constants/remainText';
 
 const Container = styled.div`
   position: absolute;
@@ -9,8 +11,7 @@ const Container = styled.div`
 
   h1 {
     padding: 10px 20px;
-    border: 1px solid #ddd;
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.8);
     cursor: pointer;
   }
 `;
@@ -48,34 +49,12 @@ function Header({ onClickTitle }: HeaderProps) {
     <Container>
       <h1 onClick={onClickTitle}>공적 마스크 판매정보</h1>
       <MarkerInfo>
-        <li>
-          <img
-            src="https://res.cloudinary.com/dfyuv19ig/image/upload/v1583863080/mask/KakaoTalk_Photo_2020-03-11-02-57-47_rlyrqw.png"
-            alt=""
-          />
-          <span>100개 이상</span>
-        </li>
-        <li>
-          <img
-            src="https://res.cloudinary.com/dfyuv19ig/image/upload/v1583863080/mask/KakaoTalk_Photo_2020-03-11-02-57-44_fadusa.png"
-            alt=""
-          />
-          <span>30 ~ 99개</span>
-        </li>
-        <li>
-          <img
-            src="https://res.cloudinary.com/dfyuv19ig/image/upload/v1583862168/mask/KakaoTalk_Photo_2020-03-11-02-40-02_urlrsf.png"
-            alt=""
-          />
-          <span>2 ~ 29개</span>
-        </li>
-        <li>
-          <img
-            src="https://res.cloudinary.com/dfyuv19ig/image/upload/v1583862599/mask/KakaoTalk_Photo_2020-03-11-02-49-48_aaca53.png"
-            alt=""
-          />
-          <span>1개 남음</span>
-        </li>
+        {Object.keys(storeImages).map(stat => (
+          <li key={stat}>
+            <img src={storeImages[stat]} alt="" />
+            <span>{remainText[stat]}</span>
+          </li>
+        ))}
       </MarkerInfo>
     </Container>
   );

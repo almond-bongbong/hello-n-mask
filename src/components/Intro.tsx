@@ -20,6 +20,8 @@ const Content = styled.div`
   max-width: 600px;
   padding: 30px;
   background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 1px 8px 2px rgba(0, 0, 0, 0.1);
   transform: translate(-50%, -50%);
 `;
 
