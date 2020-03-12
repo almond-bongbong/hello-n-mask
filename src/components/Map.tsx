@@ -113,7 +113,7 @@ function Map({
     throttle(() => {
       const center = map.current.getCenter();
       initStores(center.getLat(), center.getLng());
-    }, 1700),
+    }, 1200),
     [initStores],
   );
 
