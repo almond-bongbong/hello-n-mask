@@ -2,7 +2,6 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
 import { getStores } from '../api/store';
-import throttle from 'lodash/throttle';
 import axios from 'axios';
 import * as _ from 'fxjs2/Strict/index.js';
 import * as L from 'fxjs2/Lazy/index.js';
@@ -10,7 +9,7 @@ import storeImages from '../constants/storeImages';
 import storeTypes from '../constants/storeTypes';
 import remainText from '../constants/remainText';
 
-interface MapProps {
+interface CoronaMapProps {
   latitude: number | null;
   longitude: number | null;
   markerLatitude: number | null;
@@ -48,18 +47,64 @@ const markerImages: any = {
   plenty: new kakao.maps.MarkerImage(storeImages.plenty, imageSize),
 };
 
-function Map({
+const makeMarker = map => store => {
+  const markerImage = markerImages[store.remain_stat];
+  const zIndex = markersZIndex[store.remain_stat];
+  const latlng = new kakao.maps.LatLng(store.lat, store.lng);
+  const marker = new kakao.maps.Marker({
+    map,
+    position: latlng,
+    title: store.name,
+    image: markerImage,
+    zIndex,
+    clickable: true,
+  });
+
+  kakao.maps.event.addListener(marker, 'click', () => {
+    infoWindow.setContent(`
+            <div class="store-info">
+                <div class="store-name">${store.name} (${
+      storeTypes[store.type]
+    })</div>
+                <div class="stock_at">입고시간 : ${moment(
+                  new Date(store.stock_at),
+                ).format('MM월 DD일 HH:mm')}</div>
+                <div class="remain">재고상태 : ${
+                  remainText[store.remain_stat]
+                }</div>
+            </div>
+        `);
+    infoWindow.open(map, marker);
+  });
+
+  return marker;
+};
+
+const makeMarkers = map => _.pipe(L.map(makeMarker(map)), _.takeAll);
+
+const getIdByMarker = marker => {
+  const markerPosition = marker.getPosition();
+  return `${marker.getTitle()}${parseInt(
+    markerPosition.getLat(),
+    10,
+  )}${parseInt(markerPosition.getLng(), 10)}`;
+};
+
+const getIdByStore = store =>
+  `${store.name}${parseInt(store.lat, 10)}${parseInt(store.lng, 10)}`;
+
+function CoronaMap({
   latitude,
   longitude,
   markerLatitude,
   markerLongitude,
   onChangeLoading,
-}: MapProps) {
+}: CoronaMapProps) {
   const mapEl = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
   const clusterer = useRef<any>(null);
-  const currentMarker = useRef<any>(null);
-  const storeMarkers = useRef<any>(null);
+  const currentLocationMarker = useRef<any>(null);
+  const storeMarkerList = useRef<Map<string, any>>(new Map());
   const [stores, setStores] = useState([]);
   const cancelSource = useRef<any>(null);
 
@@ -110,7 +155,7 @@ function Map({
   }, [initStores]);
 
   const handleLocationChanged = useCallback(
-    throttle(() => {
+    _.throttle(() => {
       const center = map.current.getCenter();
       initStores(center.getLat(), center.getLng());
     }, 1200),
@@ -134,58 +179,44 @@ function Map({
 
   useEffect(() => {
     if (markerLatitude && markerLongitude) {
-      currentMarker.current = new kakao.maps.Marker({
+      currentLocationMarker.current = new kakao.maps.Marker({
         map: map.current,
         position: new kakao.maps.LatLng(markerLatitude, markerLongitude),
       });
     }
   }, [markerLatitude, markerLongitude]);
 
-  const makeMarker = useCallback(store => {
-    const markerImage = markerImages[store.remain_stat];
-    const zIndex = markersZIndex[store.remain_stat];
-    const latlng = new kakao.maps.LatLng(store.lat, store.lng);
-    const marker = new kakao.maps.Marker({
-      position: latlng,
-      title: store.name,
-      image: markerImage,
-      zIndex,
-      clickable: true,
-    });
-
-    kakao.maps.event.addListener(marker, 'click', () => {
-      infoWindow.setContent(`
-            <div class="store-info">
-                <div class="store-name">${store.name} (${
-        storeTypes[store.type]
-      })</div>
-                <div class="stock_at">입고시간 : ${moment(
-                  new Date(store.stock_at),
-                ).format('MM월 DD일 HH:mm')}</div>
-                <div class="remain">재고상태 : ${
-                  remainText[store.remain_stat]
-                }</div>
-            </div>
-        `);
-      infoWindow.open(map.current, marker);
-    });
-
-    return marker;
-  }, []);
-
   useEffect(() => {
-    storeMarkers.current = _.go(
-      stores,
-      L.filter(s => s.remain_stat),
-      L.map(makeMarker),
-      _.takeAll,
+    const markerList = storeMarkerList.current;
+    const storesId = _.map(getIdByStore, stores);
+
+    _.go(
+      markerList,
+      L.filter(([_, m]) => storesId.indexOf(getIdByMarker(m)) < 0),
+      _.each(([id, marker]) => {
+        marker.setMap(null);
+        markerList.delete(id);
+      }),
     );
 
-    clusterer.current.clear();
-    clusterer.current.addMarkers(storeMarkers.current);
-  }, [stores, makeMarker]);
+    _.go(
+      stores,
+      L.filter(s => s.remain_stat),
+      L.filter(s => !markerList.has(getIdByStore(s))),
+      L.chunk(100),
+      L.map(storeList =>
+        _.go(storeList, _.delay(30), makeMarkers(map.current)),
+      ),
+      _.each(markers => {
+        _.each(
+          marker => markerList.set(getIdByMarker(marker), marker),
+          markers,
+        );
+      }),
+    );
+  }, [stores]);
 
   return <MapContainer className="map-container" ref={mapEl} />;
 }
 
-export default memo(Map);
+export default memo(CoronaMap);

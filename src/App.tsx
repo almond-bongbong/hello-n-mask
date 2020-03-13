@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import GlobalStyle from './styles/global-style';
 import styled, { ThemeProvider } from 'styled-components';
-import Map from './components/Map';
+import Map from './components/CoronaMap';
 import CurrentLocationIcon from './icons/CurrentLocationIcon';
 import Header from './layouts/Header';
 import { theme } from './styles/theme';
