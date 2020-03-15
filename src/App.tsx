@@ -29,7 +29,7 @@ function App() {
   const [showInfo, setShowInfo] = useState<boolean>(false);
 
   const handleGeoSuccess: PositionCallback = useCallback(
-    async (position: Position) => {
+    (position: Position) => {
       const {
         coords: { latitude, longitude },
       } = position;
@@ -46,9 +46,24 @@ function App() {
     console.error(e);
   }, []);
 
+  const handleGeoWatchSuccess: PositionCallback = useCallback(
+    (position: Position) => {
+      const {
+        coords: { latitude, longitude },
+      } = position;
+
+      setMarkerLatitude(latitude);
+      setMarkerLongitude(longitude);
+    },
+    [],
+  );
+
   const detectLocation = useCallback(() => {
     navigator.geolocation.getCurrentPosition(handleGeoSuccess, handleGeoError);
-  }, [handleGeoSuccess, handleGeoError]);
+    navigator.geolocation.watchPosition(handleGeoWatchSuccess, handleGeoError, {
+      enableHighAccuracy: true,
+    });
+  }, [handleGeoSuccess, handleGeoWatchSuccess, handleGeoError]);
 
   const onClickTitle = useCallback(() => {
     setShowInfo(true);

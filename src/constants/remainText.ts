@@ -3,5 +3,5 @@ export default {
   some: '30 ~ 99개',
   few: '2 ~ 29개',
   empty: '0 ~ 1개',
-  break: '판매중지',
+  break: '판매완료',
 };

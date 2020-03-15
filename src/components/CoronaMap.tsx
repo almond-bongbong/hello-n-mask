@@ -179,10 +179,14 @@ function CoronaMap({
 
   useEffect(() => {
     if (markerLatitude && markerLongitude) {
-      currentLocationMarker.current = new kakao.maps.Marker({
-        map: map.current,
-        position: new kakao.maps.LatLng(markerLatitude, markerLongitude),
-      });
+      if (currentLocationMarker.current) {
+        currentLocationMarker.current.setPosition(new kakao.maps.LatLng(markerLatitude, markerLongitude));
+      } else {
+        currentLocationMarker.current = new kakao.maps.Marker({
+          map: map.current,
+          position: new kakao.maps.LatLng(markerLatitude, markerLongitude),
+        });
+      }
     }
   }, [markerLatitude, markerLongitude]);
 
