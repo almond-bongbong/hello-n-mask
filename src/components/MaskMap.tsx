@@ -9,7 +9,7 @@ import storeImages from '../constants/storeImages';
 import storeTypes from '../constants/storeTypes';
 import remainText from '../constants/remainText';
 
-interface CoronaMapProps {
+interface MaskMapProps {
   latitude: number | null;
   longitude: number | null;
   markerLatitude: number | null;
@@ -93,13 +93,13 @@ const getIdByMarker = marker => {
 const getIdByStore = store =>
   `${store.name}${parseInt(store.lat, 10)}${parseInt(store.lng, 10)}`;
 
-function CoronaMap({
+function MaskMap({
   latitude,
   longitude,
   markerLatitude,
   markerLongitude,
   onChangeLoading,
-}: CoronaMapProps) {
+}: MaskMapProps) {
   const mapEl = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
   const clusterer = useRef<any>(null);
@@ -223,4 +223,4 @@ function CoronaMap({
   return <MapContainer className="map-container" ref={mapEl} />;
 }
 
-export default memo(CoronaMap);
+export default memo(MaskMap);
