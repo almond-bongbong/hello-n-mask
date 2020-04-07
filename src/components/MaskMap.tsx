@@ -47,7 +47,7 @@ const markerImages: any = {
   plenty: new kakao.maps.MarkerImage(storeImages.plenty, imageSize),
 };
 
-const makeMarker = map => store => {
+const makeMarker = (map) => (store) => {
   const markerImage = markerImages[store.remain_stat];
   const zIndex = markersZIndex[store.remain_stat];
   const latlng = new kakao.maps.LatLng(store.lat, store.lng);
@@ -80,18 +80,19 @@ const makeMarker = map => store => {
   return marker;
 };
 
-const makeMarkers = map => _.pipe(L.map(makeMarker(map)), _.takeAll);
+const toFixedFloor = (num) => Math.floor(num * 10000) / 10000;
 
-const getIdByMarker = marker => {
+const makeMarkers = (map) => _.pipe(L.map(makeMarker(map)), _.takeAll);
+
+const getIdByMarker = (marker) => {
   const markerPosition = marker.getPosition();
-  return `${marker.getTitle()}${parseInt(
+  return `${marker.getTitle()}_${toFixedFloor(
     markerPosition.getLat(),
-    10,
-  )}${parseInt(markerPosition.getLng(), 10)}`;
+  )}_${toFixedFloor(markerPosition.getLng())}`;
 };
 
-const getIdByStore = store =>
-  `${store.name}${parseInt(store.lat, 10)}${parseInt(store.lng, 10)}`;
+const getIdByStore = (store) =>
+  `${store.name}_${toFixedFloor(store.lat)}_${toFixedFloor(store.lng)}`;
 
 function MaskMap({
   latitude,
@@ -117,7 +118,7 @@ function MaskMap({
         onChangeLoading(true);
         const source = axios.CancelToken.source();
         cancelSource.current = source;
-        const meter = Math.max(500, map.current.getLevel() * 800 - 1500);
+        const meter = Math.max(500, map.current.getLevel() * 1000 - 1500);
         const { data } = await getStores(lat, lng, meter, source.token);
         setStores(data.stores);
       } catch (e) {
@@ -158,7 +159,7 @@ function MaskMap({
     _.throttle(() => {
       const center = map.current.getCenter();
       initStores(center.getLat(), center.getLng());
-    }, 1200),
+    }, 1000),
     [initStores],
   );
 
@@ -180,7 +181,9 @@ function MaskMap({
   useEffect(() => {
     if (markerLatitude && markerLongitude) {
       if (currentLocationMarker.current) {
-        currentLocationMarker.current.setPosition(new kakao.maps.LatLng(markerLatitude, markerLongitude));
+        currentLocationMarker.current.setPosition(
+          new kakao.maps.LatLng(markerLatitude, markerLongitude),
+        );
       } else {
         currentLocationMarker.current = new kakao.maps.Marker({
           map: map.current,
@@ -205,18 +208,14 @@ function MaskMap({
 
     _.go(
       stores,
-      L.filter(s => s.remain_stat),
-      L.filter(s => !markerList.has(getIdByStore(s))),
+      L.filter((s) => s.remain_stat),
+      L.filter((s) => !markerList.has(getIdByStore(s))),
       L.chunk(100),
-      L.map(storeList =>
+      L.map((storeList) =>
         _.go(storeList, _.delay(30), makeMarkers(map.current)),
       ),
-      _.each(markers => {
-        _.each(
-          marker => markerList.set(getIdByMarker(marker), marker),
-          markers,
-        );
-      }),
+      _.flat,
+      _.each((marker) => markerList.set(getIdByMarker(marker), marker)),
     );
   }, [stores]);
 
