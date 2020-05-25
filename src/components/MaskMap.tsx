@@ -137,7 +137,7 @@ function MaskMap({
         onChangeLoading(false);
       }
     },
-    [dispatch, onChangeLoading],
+    [onChangeLoading],
   );
 
   useEffect(() => {
