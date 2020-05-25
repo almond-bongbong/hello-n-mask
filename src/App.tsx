@@ -1,4 +1,6 @@
 import React, { useCallback, useState } from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import GlobalStyle from './styles/global-style';
 import styled, { ThemeProvider } from 'styled-components';
 import Map from './components/MaskMap';
@@ -7,6 +9,7 @@ import Header from './layouts/Header';
 import { theme } from './styles/theme';
 import Intro from './components/Intro';
 import Loader from './components/Loader';
+import store, { persistor } from './store';
 
 const CurrentLocationButton = styled.button`
   display: block;
@@ -42,7 +45,7 @@ function App() {
     [],
   );
 
-  const handleGeoError: PositionErrorCallback = useCallback(e => {
+  const handleGeoError: PositionErrorCallback = useCallback((e) => {
     console.error(e);
   }, []);
 
@@ -73,33 +76,37 @@ function App() {
     setShowInfo(false);
   }, []);
 
-  const handleLoading = useCallback(value => {
+  const handleLoading = useCallback((value) => {
     setLoading(value);
   }, []);
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="App">
-        <GlobalStyle />
+      <Provider store={store}>
+        <PersistGate loading={<Loader />} persistor={persistor}>
+          <div className="App">
+            <GlobalStyle />
 
-        <Map
-          latitude={latitude}
-          longitude={longitude}
-          markerLatitude={markerLatitude}
-          markerLongitude={markerLongitude}
-          onChangeLoading={handleLoading}
-        />
+            <Map
+              latitude={latitude}
+              longitude={longitude}
+              markerLatitude={markerLatitude}
+              markerLongitude={markerLongitude}
+              onChangeLoading={handleLoading}
+            />
 
-        <Header onClickTitle={onClickTitle} />
+            <Header onClickTitle={onClickTitle} />
 
-        <CurrentLocationButton onClick={detectLocation}>
-          <CurrentLocationIcon />
-        </CurrentLocationButton>
+            <CurrentLocationButton onClick={detectLocation}>
+              <CurrentLocationIcon />
+            </CurrentLocationButton>
 
-        {showInfo && <Intro onClickDim={closeIntro} />}
+            {showInfo && <Intro onClickDim={closeIntro} />}
 
-        {loading && <Loader />}
-      </div>
+            {loading && <Loader />}
+          </div>
+        </PersistGate>
+      </Provider>
     </ThemeProvider>
   );
 }

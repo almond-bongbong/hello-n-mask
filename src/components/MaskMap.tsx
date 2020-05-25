@@ -8,6 +8,9 @@ import * as L from 'fxjs2/Lazy/index.js';
 import storeImages from '../constants/storeImages';
 import storeTypes from '../constants/storeTypes';
 import remainText from '../constants/remainText';
+import { useDispatch, useSelector } from 'react-redux';
+import mapSlice, { MapState } from '../store/map';
+import { RootState } from '../store';
 
 interface MaskMapProps {
   latitude: number | null;
@@ -101,6 +104,7 @@ function MaskMap({
   markerLongitude,
   onChangeLoading,
 }: MaskMapProps) {
+  const initialized = useRef<boolean>(false);
   const mapEl = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
   const clusterer = useRef<any>(null);
@@ -108,6 +112,8 @@ function MaskMap({
   const storeMarkerList = useRef<Map<string, any>>(new Map());
   const [stores, setStores] = useState([]);
   const cancelSource = useRef<any>(null);
+  const dispatch = useDispatch();
+  const mapStore: MapState = useSelector((state: RootState) => state.map);
 
   const initStores = useCallback(
     async (lat, lng) => {
@@ -131,37 +137,44 @@ function MaskMap({
         onChangeLoading(false);
       }
     },
-    [onChangeLoading],
+    [dispatch, onChangeLoading],
   );
 
   useEffect(() => {
-    // 서울 시청
-    const defaultLat = 37.5646854;
-    const defaultLng = 126.9742512;
-    const container = mapEl.current;
-    const options = {
-      center: new kakao.maps.LatLng(defaultLat, defaultLng),
-      level: 5,
-    };
-    map.current = new kakao.maps.Map(container, options);
-    map.current.setMaxLevel(10);
+    if (!initialized.current) {
+      const defaultLat = mapStore.latitude || 37.5646854;
+      const defaultLng = mapStore.longitude || 126.9742512;
+      const container = mapEl.current;
+      const options = {
+        center: new kakao.maps.LatLng(defaultLat, defaultLng),
+        level: 5,
+      };
+      map.current = new kakao.maps.Map(container, options);
+      map.current.setMaxLevel(10);
 
-    clusterer.current = new kakao.maps.MarkerClusterer({
-      map: map.current,
-      averageCenter: true,
-      minLevel: 7,
-    });
+      clusterer.current = new kakao.maps.MarkerClusterer({
+        map: map.current,
+        averageCenter: true,
+        minLevel: 7,
+      });
 
-    initStores(defaultLat, defaultLng);
-  }, [initStores]);
+      initStores(defaultLat, defaultLng);
+    }
 
-  const handleLocationChanged = useCallback(
-    _.throttle(() => {
-      const center = map.current.getCenter();
-      initStores(center.getLat(), center.getLng());
-    }, 1000),
-    [initStores],
-  );
+    initialized.current = true;
+  }, [mapStore.latitude, mapStore.longitude, initialized, initStores]);
+
+  const throttledInitStore = useCallback(_.throttle(initStores, 1000), [
+    initStores,
+  ]);
+
+  const handleLocationChanged = useCallback(() => {
+    const center = map.current.getCenter();
+    const lat = center.getLat();
+    const lng = center.getLng();
+    throttledInitStore(lat, lng);
+    dispatch(mapSlice.actions.setPosition({ latitude: lat, longitude: lng }));
+  }, [throttledInitStore, dispatch]);
 
   useEffect(() => {
     kakao.maps.event.addListener(
